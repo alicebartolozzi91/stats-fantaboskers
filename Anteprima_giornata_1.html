@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fantaboskers · Anteprima Giornata</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0b1410;
+    --bg-glow: radial-gradient(circle at 50% -10%, #1a2b20 0%, #0b1410 55%);
+    --surface: #101d16;
+    --surface-2: #16261c;
+    --line: #223226;
+    --gold: #e4b33c;
+    --gold-soft: #4a3d1e;
+    --scarlet: #c1443a;
+    --text: #edefe8;
+    --muted: #7e9184;
+    --muted-2: #566459;
+    --win-a: #3f8f5f;
+    --win-b: #c1443a;
+    --draw: #7e9184;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--bg-glow);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    padding: 32px 16px 64px;
+  }
+  .wrap{ max-width: 720px; margin: 0 auto; }
+
+  .marquee{
+    text-align:center;
+    margin-bottom: 36px;
+  }
+  .marquee .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    letter-spacing: 0.35em;
+    font-size: 11px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .marquee h1{
+    font-family:'Oswald', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: clamp(28px, 6vw, 44px);
+    letter-spacing: 0.03em;
+    margin: 0;
+    line-height: 1.05;
+  }
+  .marquee .sub{
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 8px;
+  }
+
+  .match{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    margin-bottom: 18px;
+    overflow: hidden;
+    transition: border-color .2s ease;
+  }
+  .match:hover{ border-color: #2c4433; }
+
+  .match-head{
+    display:grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items:center;
+    gap: 14px;
+    padding: 22px 20px 16px;
+    cursor: pointer;
+  }
+  .team{
+    font-family:'Oswald', sans-serif;
+    font-weight: 600;
+    font-size: 17px;
+    text-transform: uppercase;
+    line-height: 1.15;
+  }
+  .team.a{ text-align:right; }
+  .team.b{ text-align:left; }
+  .vs{
+    font-family:'Oswald', sans-serif;
+    font-size: 13px;
+    color: var(--gold);
+    border: 1px solid var(--gold-soft);
+    border-radius: 999px;
+    width: 34px; height: 34px;
+    display:flex; align-items:center; justify-content:center;
+    letter-spacing: 0.05em;
+  }
+
+  .tally{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: 10px;
+    padding: 0 20px 20px;
+  }
+  .flip{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap: 4px;
+  }
+  .flip .digit{
+    font-family:'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    width: 44px; height: 40px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .flip.win-a .digit{ color: var(--win-a); border-color: #2d4b39; }
+  .flip.draw .digit{ color: var(--muted); }
+  .flip.win-b .digit{ color: var(--win-b); border-color: #4a2c29; }
+  .flip .label{
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    color: var(--muted-2);
+    text-transform: uppercase;
+  }
+
+  .stat-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: 18px;
+    padding: 4px 20px 4px;
+  }
+  .stat-block{ text-align:center; min-width: 64px; }
+  .stat-big{
+    font-family:'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: 34px;
+    line-height: 1;
+  }
+  .stat-block.a .stat-big{ color: var(--win-a); }
+  .stat-block.b .stat-big{ color: var(--win-b); }
+  .stat-label{
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    color: var(--muted-2);
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  .stat-bar{
+    flex: 1;
+    max-width: 160px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--line);
+    overflow:hidden;
+    display:flex;
+  }
+  .stat-bar .fill-a{ background: var(--win-a); height:100%; }
+  .stat-bar .fill-b{ background: var(--win-b); height:100%; }
+  .stat-sub{
+    text-align:center;
+    font-size: 11.5px;
+    color: var(--muted-2);
+    padding: 0 20px 18px;
+  }
+
+  .insight-badge{
+    margin: 0 20px 18px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    text-align: center;
+    letter-spacing: 0.02em;
+  }
+  .insight-badge.dominanza{
+    background: #2a1614;
+    border: 1px solid #4a2c29;
+    color: #e8877c;
+  }
+  .insight-badge.bestia_nera{
+    background: #2a1614;
+    border: 1px solid #4a2c29;
+    color: #e8877c;
+  }
+  .insight-badge.vittima_preferita{
+    background: #16211f;
+    border: 1px solid #2a3d38;
+    color: #7ce89a;
+  }
+  .insight-badge.record_streak{
+    background: #201a2c;
+    border: 1px solid #3a2f4a;
+    color: #b89be8;
+  }
+  .insight-badge.tabu{
+    background: #2a1614;
+    border: 1px solid #4a2c29;
+    color: #e8877c;
+  }
+  .insight-badge.quasi_tabu{
+    background: #291d10;
+    border: 1px solid #4a3820;
+    color: #e0ab6e;
+  }
+  .insight-badge.equilibrio{
+    background: #16211f;
+    border: 1px solid #2a3d38;
+    color: #7cc9bd;
+  }
+  .insight-badge.manuale{
+    background: #241d0e;
+    border: 1px solid #4a3d1e;
+    color: var(--gold);
+  }
+  .insight-badge .icon{ margin-right: 6px; }
+
+  .no-history{
+    text-align:center;
+    padding: 0 20px 22px;
+    color: var(--muted);
+    font-size: 13px;
+    font-style: italic;
+  }
+
+  .bar-row{
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    padding: 0 20px 20px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .bar{
+    flex:1;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--line);
+    overflow:hidden;
+    display:flex;
+  }
+  .bar-a{ background: var(--win-a); height:100%; }
+  .bar-b{ background: var(--win-b); height:100%; }
+
+  .toggle-row{
+    text-align:center;
+    padding: 0 0 4px;
+  }
+  .toggle-btn{
+    background:none;
+    border:none;
+    color: var(--gold);
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor:pointer;
+    padding: 6px 14px 18px;
+  }
+
+  .history{
+    max-height:0;
+    overflow:hidden;
+    transition: max-height .3s ease;
+    border-top: 1px solid var(--line);
+  }
+  .history.open{ max-height: 900px; }
+  .history-inner{ padding: 16px 20px 20px; }
+  .history-title{
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted-2);
+    margin-bottom: 10px;
+  }
+  .h-row{
+    display:grid;
+    grid-template-columns: 92px 1fr auto 1fr;
+    align-items:center;
+    gap: 8px;
+    padding: 7px 0;
+    font-size: 12.5px;
+    border-bottom: 1px dashed #1c2a20;
+  }
+  .h-row:last-child{ border-bottom:none; }
+  .h-season{ color: var(--muted-2); font-size: 10.5px; }
+  .h-score{
+    text-align:center;
+    font-family:'Oswald', sans-serif;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .h-score.win-a{ color: var(--win-a); }
+  .h-score.win-b{ color: var(--win-b); }
+  .h-score.draw{ color: var(--muted); }
+  .h-gol-big{
+    font-family:'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+  }
+  .h-punt-small{ color: var(--muted-2); font-size: 10px; }
+  .h-num.right{ text-align:right; }
+  .h-num.left{ text-align:left; }
+
+  footer{
+    text-align:center;
+    color: var(--muted-2);
+    font-size: 11px;
+    margin-top: 30px;
+    letter-spacing: 0.05em;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="marquee">
+    <div class="eyebrow">Fantaboskers &middot; Statistiche precedenti</div>
+    <h1 id="titolo">Giornata 1</h1>
+    <div class="sub" id="sottotitolo">Stagione 2026-27</div>
+  </div>
+
+  <div id="matches"></div>
+
+  <footer>dati storici: 2020-21 &middot; 2021-22 &middot; 2022-23</footer>
+</div>
+
+<script>
+const DATA = {"stagione": "Risultati2026-27", "giornata": 1, "partite": [{"squadra_a": "Paris San Marten", "squadra_b": "Reparto Fereri", "h2h": {"team_a_id": "paris_san_marten", "team_b_id": "reparto_fereri", "n_incontri": 8, "vittorie_a": 0, "vittorie_b": 6, "pareggi": 2, "media_punti_a": 66.1875, "media_punti_b": 76.625, "tot_gol_a": 2, "tot_gol_b": 12, "dettaglio": [{"stagione": "Risultati2021-22", "giornata": 6, "punteggio_a": 67.5, "punteggio_b": 79.0, "gol_a": 0, "gol_b": 2, "esito": "vince_b"}, {"stagione": "Risultati2021-22", "giornata": 15, "punteggio_a": 71.5, "punteggio_b": 91.5, "gol_a": 0, "gol_b": 4, "esito": "vince_b"}, {"stagione": "Risultati2021-22", "giornata": 24, "punteggio_a": 68.5, "punteggio_b": 72.5, "gol_a": 0, "gol_b": 1, "esito": "vince_b"}, {"stagione": "Risultati2021-22", "giornata": 33, "punteggio_a": 57.0, "punteggio_b": 69.0, "gol_a": 0, "gol_b": 0, "esito": "pareggio"}, {"stagione": "Risultati2022-23", "giornata": 5, "punteggio_a": 58.0, "punteggio_b": 69.0, "gol_a": 0, "gol_b": 0, "esito": "pareggio"}, {"stagione": "Risultati2022-23", "giornata": 14, "punteggio_a": 72.0, "punteggio_b": 79.5, "gol_a": 1, "gol_b": 2, "esito": "vince_b"}, {"stagione": "Risultati2022-23", "giornata": 23, "punteggio_a": 72.5, "punteggio_b": 79.0, "gol_a": 1, "gol_b": 2, "esito": "vince_b"}, {"stagione": "Risultati2022-23", "giornata": 32, "punteggio_a": 62.5, "punteggio_b": 73.5, "gol_a": 0, "gol_b": 1, "esito": "vince_b"}]}, "insight": {"tipo": "bestia_nera", "testo": "Reparto Fereri è la bestia nera di Paris San Marten: nessun altro avversario gli ha inflitto più sconfitte (6)"}}, {"squadra_a": "Lokomotiv Caricheria", "squadra_b": "Olimpique Village", "h2h": {"team_a_id": "lokomotiv_paceria", "team_b_id": "olimpique_village", "n_incontri": 9, "vittorie_a": 4, "vittorie_b": 1, "pareggi": 4, "media_punti_a": 74.66666666666667, "media_punti_b": 72.16666666666667, "tot_gol_a": 9, "tot_gol_b": 5, "dettaglio": [{"stagione": "Risultati2021-22", "giornata": 4, "punteggio_a": 78.5, "punteggio_b": 77.0, "gol_a": 2, "gol_b": 1, "esito": "vince_a"}, {"stagione": "Risultati2021-22", "giornata": 13, "punteggio_a": 68.5, "punteggio_b": 75.5, "gol_a": 0, "gol_b": 1, "esito": "vince_b"}, {"stagione": "Risultati2021-22", "giornata": 22, "punteggio_a": 75.0, "punteggio_b": 74.5, "gol_a": 1, "gol_b": 1, "esito": "pareggio"}, {"stagione": "Risultati2021-22", "giornata": 31, "punteggio_a": 69.0, "punteggio_b": 68.0, "gol_a": 0, "gol_b": 0, "esito": "pareggio"}, {"stagione": "Risultati2022-23", "giornata": 2, "punteggio_a": 72.0, "punteggio_b": 68.5, "gol_a": 1, "gol_b": 0, "esito": "vince_a"}, {"stagione": "Risultati2022-23", "giornata": 11, "punteggio_a": 69.0, "punteggio_b": 71.5, "gol_a": 0, "gol_b": 0, "esito": "pareggio"}, {"stagione": "Risultati2022-23", "giornata": 20, "punteggio_a": 76.5, "punteggio_b": 72.5, "gol_a": 1, "gol_b": 1, "esito": "pareggio"}, {"stagione": "Risultati2022-23", "giornata": 29, "punteggio_a": 77.0, "punteggio_b": 68.0, "gol_a": 1, "gol_b": 0, "esito": "vince_a"}, {"stagione": "Risultati2022-23", "giornata": 38, "punteggio_a": 86.5, "punteggio_b": 74.0, "gol_a": 3, "gol_b": 1, "esito": "vince_a"}]}, "insight": {"tipo": "bestia_nera", "testo": "Lokomotiv Caricheria è la bestia nera di Olimpique Village: nessun altro avversario gli ha inflitto più sconfitte (4)"}}, {"squadra_a": "Palazzina Sheriffs", "squadra_b": "Botafogo da Bahia", "h2h": {"team_a_id": "palazzina_sheriffs", "team_b_id": "i_granatieri_della_rondinaia", "n_incontri": 9, "vittorie_a": 4, "vittorie_b": 2, "pareggi": 3, "media_punti_a": 71.5, "media_punti_b": 69.61111111111111, "tot_gol_a": 6, "tot_gol_b": 3, "dettaglio": [{"stagione": "Risultati2020-21", "giornata": 2, "punteggio_a": 83.5, "punteggio_b": 75.5, "gol_a": 2, "gol_b": 1, "esito": "vince_a"}, {"stagione": "Risultati2020-21", "giornata": 11, "punteggio_a": 65.5, "punteggio_b": 76.5, "gol_a": 0, "gol_b": 1, "esito": "vince_b"}, {"stagione": "Risultati2020-21", "giornata": 20, "punteggio_a": 73.5, "punteggio_b": 63.0, "gol_a": 1, "gol_b": 0, "esito": "vince_a"}, {"stagione": "Risultati2020-21", "giornata": 29, "punteggio_a": 65.5, "punteggio_b": 75.0, "gol_a": 0, "gol_b": 1, "esito": "vince_b"}, {"stagione": "Risultati2020-21", "giornata": 38, "punteggio_a": 83.0, "punteggio_b": 61.0, "gol_a": 2, "gol_b": 0, "esito": "vince_a"}, {"stagione": "Risultati2022-23", "giornata": 8, "punteggio_a": 70.0, "punteggio_b": 67.5, "gol_a": 0, "gol_b": 0, "esito": "pareggio"}, {"stagione": "Risultati2022-23", "giornata": 17, "punteggio_a": 67.0, "punteggio_b": 68.0, "gol_a": 0, "gol_b": 0, "esito": "pareggio"}, {"stagione": "Risultati2022-23", "giornata": 26, "punteggio_a": 73.0, "punteggio_b": 70.0, "gol_a": 1, "gol_b": 0, "esito": "vince_a"}, {"stagione": "Risultati2022-23", "giornata": 35, "punteggio_a": 62.5, "punteggio_b": 70.0, "gol_a": 0, "gol_b": 0, "esito": "pareggio"}]}, "insight": {"tipo": "manuale", "testo": "Da quando è tornata in lega nel 2022-23 (allora si chiamava Le locuste del deserto), Botafogo da Bahia non ha più battuto Palazzina Sheriffs: 3 pareggi e una sconfitta in 4 sfide"}}, {"squadra_a": "Giuseppe il bagnino", "squadra_b": "FC Paperopoli", "h2h": {"team_a_id": "super_eagles", "team_b_id": "spezia_ginochia", "n_incontri": 0, "vittorie_a": 0, "vittorie_b": 0, "pareggi": 0, "media_punti_a": null, "media_punti_b": null, "tot_gol_a": 0, "tot_gol_b": 0, "dettaglio": []}, "insight": null}]};
+
+function iniziali(nome){
+  return nome.split(' ').map(w => w[0]).join('').slice(0,3).toUpperCase();
+}
+
+function renderMatch(m, idx){
+  const h = m.h2h;
+  const n = h.n_incontri;
+  const hasHistory = n > 0;
+
+  let tallyHtml, statHtml;
+  if (hasHistory) {
+    tallyHtml = `
+      <div class="tally">
+        <div class="flip win-a"><div class="digit">${h.vittorie_a}</div><div class="label">${iniziali(m.squadra_a)}</div></div>
+        <div class="flip draw"><div class="digit">${h.pareggi}</div><div class="label">Pareggi</div></div>
+        <div class="flip win-b"><div class="digit">${h.vittorie_b}</div><div class="label">${iniziali(m.squadra_b)}</div></div>
+      </div>`;
+    const totGol = h.tot_gol_a + h.tot_gol_b;
+    const pctA = totGol > 0 ? Math.round((h.tot_gol_a / totGol) * 100) : 50;
+    const pctB = 100 - pctA;
+    statHtml = `
+      <div class="stat-row">
+        <div class="stat-block a"><div class="stat-big">${h.tot_gol_a}</div><div class="stat-label">gol totali</div></div>
+        <div class="stat-bar"><div class="fill-a" style="width:${pctA}%"></div><div class="fill-b" style="width:${pctB}%"></div></div>
+        <div class="stat-block b"><div class="stat-big">${h.tot_gol_b}</div><div class="stat-label">gol totali</div></div>
+      </div>
+      <div class="stat-sub">media punti: ${h.media_punti_a.toFixed(1)} &nbsp;&ndash;&nbsp; ${h.media_punti_b.toFixed(1)}</div>`;
+  } else {
+    tallyHtml = `<div class="no-history">Nessun precedente: primo incontro assoluto tra queste due squadre.</div>`;
+    statHtml = '';
+  }
+
+  let historyHtml = '';
+  if (hasHistory) {    const rows = h.dettaglio.map(d => {
+      const cls = d.esito === 'vince_a' ? 'win-a' : (d.esito === 'vince_b' ? 'win-b' : 'draw');
+      return `
+        <div class="h-row">
+          <div class="h-season">${d.stagione.replace('Risultati','')} &middot; G${d.giornata}</div>
+          <div class="h-num right"><span class="h-gol-big">${d.gol_a}</span> <span class="h-punt-small">(${d.punteggio_a.toFixed(1)} pt)</span></div>
+          <div class="h-score ${cls}">${d.gol_a > d.gol_b ? '&larr;' : (d.gol_b > d.gol_a ? '&rarr;' : '=')}</div>
+          <div class="h-num left"><span class="h-punt-small">(${d.punteggio_b.toFixed(1)} pt)</span> <span class="h-gol-big">${d.gol_b}</span></div>
+        </div>`;
+    }).join('');
+    historyHtml = `
+      <div class="history" id="hist-${idx}">
+        <div class="history-inner">
+          <div class="history-title">Tutti i precedenti (${n})</div>
+          ${rows}
+        </div>
+      </div>
+      <div class="toggle-row">
+        <button class="toggle-btn" onclick="toggleHistory(${idx})" id="btn-${idx}">Mostra i ${n} precedenti</button>
+      </div>`;
+  }
+
+  const icons = {
+    dominanza: '🔥', bestia_nera: '👹', vittima_preferita: '🎯',
+    record_streak: '📈', tabu: '👻', quasi_tabu: '😬', equilibrio: '⚖️',
+    manuale: '💬'
+  };
+  const insightHtml = m.insight
+    ? `<div class="insight-badge ${m.insight.tipo}"><span class="icon">${icons[m.insight.tipo] || ''}</span>${m.insight.testo}</div>`
+    : '';
+
+  return `
+    <div class="match">
+      <div class="match-head" onclick="${hasHistory ? `toggleHistory(${idx})` : ''}">
+        <div class="team a">${m.squadra_a}</div>
+        <div class="vs">VS</div>
+        <div class="team b">${m.squadra_b}</div>
+      </div>
+      ${insightHtml}
+      ${tallyHtml}
+      ${statHtml}
+      ${historyHtml}
+    </div>`;
+}
+
+function toggleHistory(idx){
+  const el = document.getElementById('hist-' + idx);
+  const btn = document.getElementById('btn-' + idx);
+  if (!el) return;
+  const open = el.classList.toggle('open');
+  if (btn) btn.textContent = open ? 'Nascondi i precedenti' : btn.textContent.replace('Nascondi', 'Mostra');
+}
+
+document.getElementById('titolo').textContent = 'Giornata ' + DATA.giornata;
+document.getElementById('sottotitolo').textContent = 'Stagione ' + DATA.stagione.replace('Risultati','');
+document.getElementById('matches').innerHTML = DATA.partite.map((m,i) => renderMatch(m,i)).join('');
+</script>
+</body>
+</html>
